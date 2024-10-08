@@ -28,11 +28,6 @@ jobs:
       - name: Display Go version
         run: go version
 
-      - name: Set up Go Modules
-        run: |
-          go mod tidy        # Ensures go.mod and go.sum are up to date
-          go mod download    # Downloads all dependencies
-
       - name: Display the release tag
         run: |
           echo "Release tag: ${{ github.event.release.tag_name }}"
