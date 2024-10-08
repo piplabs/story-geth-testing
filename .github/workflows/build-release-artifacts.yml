@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         platform:
-          [linux-amd64, linux-arm64, darwin-amd64, darwin-arm64, windows-amd64]
+          [linux-amd64, linux-arm64, darwin-amd64, darwin-arm64]
           
     steps:
       - name: Checkout code
@@ -36,9 +36,6 @@ jobs:
         run: |
           IFS="-" read -r GOOS GOARCH <<< "${{ matrix.platform }}"
           output_name=./build/bin/geth
-          if [ "$GOOS" = "windows" ]; then
-            output_name+='.exe'
-          fi
 
           echo "Building for $GOOS/$GOARCH..."
           env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name ./cmd/geth
@@ -57,9 +54,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.event.release.tag_name }}
           file: |
-            ./release/geth-linux-amd64
-            ./release/geth-macos-amd64
-            ./release/geth-windows-amd64.exe
+            ./build/bin/geth-${{ matrix.platform }}
             ./release/source-code.zip
             ./release/source-code.tar.gz
           file_glob: false
