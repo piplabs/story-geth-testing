@@ -6,13 +6,19 @@ on:
       - created
       - edited
 
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  actions: write
+
 jobs:
   build:
     name: Build Release Assets
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.5
 
       - name: Set up Go
         uses: actions/setup-go@v4
