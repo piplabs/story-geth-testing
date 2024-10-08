@@ -1,0 +1,63 @@
+name: Build Release Binaries
+
+on:
+  release:
+    types:
+      - created
+      - edited
+
+jobs:
+  build:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      - name: Display Go version
+        run: go version
+
+      - name: Display the release tag
+        run: |
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+
+      - name: Set up environment for cross-compilation
+        run: |
+          # Linux x86_64
+          export GOOS=linux GOARCH=amd64
+          go build -o ./release/geth-linux-amd64 ./cmd/geth
+          
+          # macOS x86_64
+          export GOOS=darwin GOARCH=amd64
+          go build -o ./release/geth-macos-amd64 ./cmd/geth
+
+          # Windows x86_64
+          export GOOS=windows GOARCH=amd64
+          go build -o ./release/geth-windows-amd64.exe ./cmd/geth
+
+      - name: Archive source code (ZIP and TAR.GZ)
+        run: |
+          zip -r ./release/source-code.zip .
+          tar -czvf ./release/source-code.tar.gz .
+
+      - name: List release assets
+        run: ls -l ./release
+
+      - name: Upload binaries and source code to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.event.release.tag_name }}
+          file: |
+            ./release/geth-linux-amd64
+            ./release/geth-macos-amd64
+            ./release/geth-windows-amd64.exe
+            ./release/source-code.zip
+            ./release/source-code.tar.gz
+          file_glob: false
+      
