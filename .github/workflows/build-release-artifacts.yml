@@ -35,13 +35,10 @@ jobs:
       - name: Set up environment for cross-compilation
         run: |
           IFS="-" read -r GOOS GOARCH <<< "${{ matrix.platform }}"
-          output_name=./build/bin/geth
+          output_name=./build/bin/geth-${{ matrix.platform }}
 
           echo "Building for $GOOS/$GOARCH..."
           env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name ./cmd/geth
-
-      - name: List release assets
-        run: ls -l ./release
 
       - name: Upload binaries and source code to GitHub Release
         uses: svenstaro/upload-release-action@v2
@@ -50,7 +47,5 @@ jobs:
           tag: ${{ github.event.release.tag_name }}
           file: |
             ./build/bin/geth-${{ matrix.platform }}
-            ./release/source-code.zip
-            ./release/source-code.tar.gz
           file_glob: false
       
