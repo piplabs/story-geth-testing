@@ -40,10 +40,23 @@ jobs:
           echo "Building for $GOOS/$GOARCH..."
           env GOOS=$GOOS GOARCH=$GOARCH go build -o $output_name ./cmd/geth
 
-
       - name: Calculate checksum
         run: |
+          echo "Generating checksum for ${{ matrix.platform }}..."
           sha256sum ./build/bin/geth-${{ matrix.platform }} > ./build/bin/geth-${{ matrix.platform }}.sha256
+          ls -l ./build/bin/geth-${{ matrix.platform }}.sha256
+
+      - name: Check if checksum is generated
+        run: |
+          echo "Checking checksum existence for ${{ matrix.platform }}..."
+          ls -l ./build/bin/geth-${{ matrix.platform }}.sha256
+        continue-on-error: false
+
+      - name: Show checksum file content
+        run: |
+          echo "Displaying checksum for ${{ matrix.platform }}:"
+          cat ./build/bin/geth-${{ matrix.platform }}.sha256
+        continue-on-error: false
 
       - name: Upload binaries and source code to GitHub Release
         uses: svenstaro/upload-release-action@v2
@@ -54,4 +67,4 @@ jobs:
             ./build/bin/geth-${{ matrix.platform }}
             ./build/bin/geth-${{ matrix.platform }}.sha256
           file_glob: false
-      
+
